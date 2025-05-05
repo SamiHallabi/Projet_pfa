@@ -49,40 +49,6 @@ public class ReservationController {
         this.seatService = seatService;
     }
 
-//    @PostMapping
-//    public ResponseEntity<?> createReservation(
-//            @RequestBody Map<String, Object> reservationRequest) {
-//        try {
-//            Long userId = Long.valueOf(reservationRequest.get("userId").toString());
-//            Long showId = Long.valueOf(reservationRequest.get("showId").toString());
-//
-//            @SuppressWarnings("unchecked")
-////            List<Long> seatIds = (List<Long>) reservationRequest.get("seatIds");
-//            List<?> rawSeatIds = (List<?>) reservationRequest.get("seatIds");
-//            List<Long> seatIds = rawSeatIds.stream()
-//                    .map(Object::toString)
-//                    .map(Long::valueOf)
-//                    .collect(Collectors.toList());
-//
-//
-//            Optional<User> userOptional = userService.getUserById(userId);
-//            Optional<Show> showOptional = showService.getShowById(showId);
-//
-//            if (userOptional.isPresent() && showOptional.isPresent() && seatIds != null && !seatIds.isEmpty()) {
-//                Reservation reservation = new Reservation();
-//                reservation.setUser(userOptional.get());
-//                reservation.setShow(showOptional.get());
-//                reservation.setConfirmed(true); // Auto-confirm for simplicity
-//
-//                Reservation savedReservation = reservationService.createReservation(reservation, seatIds);
-//                return ResponseEntity.status(HttpStatus.CREATED).body(savedReservation);
-//            } else {
-//                return ResponseEntity.badRequest().body("Invalid user, show, or seats");
-//            }
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body("Error creating reservation: " + e.getMessage());
-//        }
-//    }
     @PostMapping
     public ResponseEntity<?> createReservation(
             @RequestBody Map<String, Object> reservationRequest) {
