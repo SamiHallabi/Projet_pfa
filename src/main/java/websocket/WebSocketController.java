@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.Map;
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @Controller
 public class WebSocketController {
 

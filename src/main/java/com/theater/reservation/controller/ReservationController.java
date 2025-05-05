@@ -6,11 +6,10 @@ package com.theater.reservation.controller;
 // or correct the import if the package is different
 
 import com.theater.reservation.model.Reservation;
+import com.theater.reservation.model.Seat;
 import com.theater.reservation.model.Show;
 import com.theater.reservation.model.User;
-import com.theater.reservation.service.PdfService;
-import com.theater.reservation.service.ReservationService;
-import com.theater.reservation.service.ShowService;
+import com.theater.reservation.service.*;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.theater.reservation.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/reservations")
 //@CrossOrigin(origins = "*")
@@ -35,17 +34,19 @@ public class ReservationController {
     private final UserService userService;
     private final ShowService showService;
     private final PdfService pdfService;
-
+    private final SeatService seatService;
     @Autowired
     public ReservationController(
             ReservationService reservationService,
             UserService userService,
             ShowService showService,
-            PdfService pdfService) {
+            PdfService pdfService,
+            SeatService seatService) {
         this.reservationService = reservationService;
         this.userService = userService;
         this.showService = showService;
         this.pdfService = pdfService;
+        this.seatService = seatService;
     }
 
 //    @PostMapping
@@ -97,13 +98,17 @@ public class ReservationController {
 
             Optional<User> userOptional = userService.getUserById(userId);
             Optional<Show> showOptional = showService.getShowById(showId);
+            List<Seat> confirmedSeats = new ArrayList<>();
+            if(showOptional.isPresent()){
+                 confirmedSeats = seatService.getSelectedSeat(seatIds);
+            }
 
-            if (userOptional.isPresent() && showOptional.isPresent() && seatIds != null && !seatIds.isEmpty()) {
+            if (userOptional.isPresent() && showOptional.isPresent() && seatIds != null && !seatIds.isEmpty() && !confirmedSeats.isEmpty()) {
                 Reservation reservation = new Reservation();
                 reservation.setUser(userOptional.get());
                 reservation.setShow(showOptional.get());
                 reservation.setConfirmed(true); // Auto-confirm for simplicity
-
+                reservation.setSeats(confirmedSeats);
                 Reservation savedReservation = reservationService.createReservation(reservation, seatIds);
                 return ResponseEntity.status(HttpStatus.CREATED).body(savedReservation);
             } else {

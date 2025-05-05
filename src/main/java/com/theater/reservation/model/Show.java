@@ -16,6 +16,7 @@ public class Show {
     private Long id;
 
     private String title;
+    @Column(length = 1000)
     private String description;
     private LocalDateTime date;
     private int duration; // in minutes

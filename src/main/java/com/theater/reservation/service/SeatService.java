@@ -70,4 +70,13 @@ public class SeatService {
             seatRepository.save(seat);
         }
     }
+
+    public List<Seat> getSelectedSeat(List<Long> seatIds) {
+       List<Optional<Seat>> selectedSeatOpt = seatIds.stream().map(seatRepository::findById).toList();
+        return selectedSeatOpt.stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(Seat::isAvailable)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

@@ -28,7 +28,6 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "show_id")
-    @JsonIgnore
     private Show show;
 
     @OneToMany(mappedBy = "reservation")

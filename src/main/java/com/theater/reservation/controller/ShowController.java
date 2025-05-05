@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shows")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 public class ShowController {
 
     private final ShowService showService;
