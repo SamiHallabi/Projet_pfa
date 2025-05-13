@@ -3,6 +3,7 @@ package com.theater.reservation.service;
 
 
 import com.theater.reservation.model.Show;
+import com.theater.reservation.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.theater.reservation.repository.ShowRepository;
@@ -15,10 +16,12 @@ import java.util.Optional;
 public class ShowService {
 
     private final ShowRepository showRepository;
+    private final ReservationRepository reservationRepository;
 
     @Autowired
-    public ShowService(ShowRepository showRepository) {
+    public ShowService(ShowRepository showRepository, ReservationRepository reservationRepository) {
         this.showRepository = showRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     public Show createShow(Show show) {
@@ -26,7 +29,12 @@ public class ShowService {
     }
 
     public List<Show> getAllShows() {
-        return showRepository.findAll();
+        var shows= showRepository.findAll();
+       return shows.stream().map(show -> {
+            show.setReservations(reservationRepository.findByShow(show));
+          return show;
+           }).toList();
+
     }
 
     public Optional<Show> getShowById(Long id) {

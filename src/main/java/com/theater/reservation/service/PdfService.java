@@ -3,6 +3,11 @@ package com.theater.reservation.service;
 
 import com.theater.reservation.model.Reservation;
 import com.theater.reservation.model.Seat;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -12,35 +17,54 @@ import java.time.format.DateTimeFormatter;
 public class PdfService {
 
     public byte[] generateInvoice(Reservation reservation) {
-        // In a real application, you would use a PDF library like iText or PDFBox
-        // For simplicity, let's just simulate PDF generation
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             PDDocument document = new PDDocument()) {
 
-        try {
-            // This is just placeholder content - in a real app you'd generate actual PDF content
-            String invoiceContent = "INVOICE\n\n" +
-                    "Reservation Code: " + reservation.getReservationCode() + "\n" +
-                    "Date: " + reservation.getReservationDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n\n" +
-                    "Show: " + reservation.getShow().getTitle() + "\n" +
-                    "Date & Time: " + reservation.getShow().getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) + "\n\n" +
-                    "Customer: " + reservation.getUser().getFullName() + "\n" +
-                    "Email: " + reservation.getUser().getEmail() + "\n\n" +
-                    "Seats:\n";
+            PDPage page = new PDPage(PDRectangle.A4);
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
+            contentStream.setLeading(14.5f);
+            contentStream.newLineAtOffset(50, 750);
+
+            contentStream.showText("INVOICE");
+            contentStream.newLine();
+            contentStream.newLine();
+            contentStream.showText("Reservation Code: " + reservation.getReservationCode());
+            contentStream.newLine();
+            contentStream.showText("Date: " + reservation.getReservationDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            contentStream.newLine();
+            contentStream.showText("Show Date & Time: " + reservation.getShow().getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            contentStream.newLine();
+            contentStream.showText("Customer: " + reservation.getUser().getFullName());
+            contentStream.newLine();
+            contentStream.showText("Email: " + reservation.getUser().getEmail());
+            contentStream.newLine();
+            contentStream.newLine();
+            contentStream.showText("Seats:");
+            contentStream.newLine();
 
             for (Seat seat : reservation.getSeats()) {
-                invoiceContent += "- Row " + seat.getRowNumber() + ", Seat " + seat.getSeatNumber() + "\n";
+                contentStream.showText("- Row " + seat.getRowNumber() + ", Seat " + seat.getSeatNumber());
+                contentStream.newLine();
             }
 
-            invoiceContent += "\nTotal Price: €" + reservation.getTotalPrice() + "\n\n" +
-                    "Thank you for your purchase!";
+            contentStream.newLine();
+            contentStream.showText("Total Price: €" + reservation.getTotalPrice());
+            contentStream.newLine();
+            contentStream.newLine();
+            contentStream.showText("Thank you for your purchase!");
 
-            // In a real application, convert this content to a PDF
-            outputStream.write(invoiceContent.getBytes());
+            contentStream.endText();
+            contentStream.close();
 
-            // Mark the invoice as generated
+            document.save(outputStream);
             reservation.setInvoiceGenerated(true);
-
             return outputStream.toByteArray();
+
         } catch (Exception e) {
             e.printStackTrace();
             return new byte[0];
