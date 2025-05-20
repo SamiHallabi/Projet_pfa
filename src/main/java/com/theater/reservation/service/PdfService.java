@@ -25,26 +25,41 @@ public class PdfService {
 
             PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
+            // Title Section
+            contentStream.beginText();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 24);
+            contentStream.newLineAtOffset(220, 770);
+            contentStream.showText("INVOICE");
+            contentStream.endText();
+
+            // Subtitle line
+            contentStream.setStrokingColor(0, 0, 0); // Black
+            contentStream.setLineWidth(1f);
+            contentStream.moveTo(50, 755);
+            contentStream.lineTo(545, 755);
+            contentStream.stroke();
+
+            // Body content
             contentStream.beginText();
             contentStream.setFont(PDType1Font.HELVETICA, 12);
-            contentStream.setLeading(14.5f);
-            contentStream.newLineAtOffset(50, 750);
+            contentStream.setLeading(16f);
+            contentStream.newLineAtOffset(50, 730);
 
-            contentStream.showText("INVOICE");
-            contentStream.newLine();
-            contentStream.newLine();
             contentStream.showText("Reservation Code: " + reservation.getReservationCode());
             contentStream.newLine();
-            contentStream.showText("Date: " + reservation.getReservationDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            contentStream.showText("Reservation Date: " + reservation.getReservationDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             contentStream.newLine();
-            contentStream.showText("Show Date & Time: " + reservation.getShow().getDate().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            contentStream.showText("Show Date & Time: " + reservation.getShow().getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
             contentStream.newLine();
-            contentStream.showText("Customer: " + reservation.getUser().getFullName());
+            contentStream.showText("Customer Name: " + reservation.getUser().getFullName());
             contentStream.newLine();
-            contentStream.showText("Email: " + reservation.getUser().getEmail());
+            contentStream.showText("Customer Email: " + reservation.getUser().getEmail());
             contentStream.newLine();
             contentStream.newLine();
-            contentStream.showText("Seats:");
+
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+            contentStream.showText("Reserved Seats:");
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
             contentStream.newLine();
 
             for (Seat seat : reservation.getSeats()) {
@@ -53,15 +68,18 @@ public class PdfService {
             }
 
             contentStream.newLine();
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
             contentStream.showText("Total Price: €" + reservation.getTotalPrice());
             contentStream.newLine();
             contentStream.newLine();
-            contentStream.showText("Thank you for your purchase!");
 
+            contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, 12);
+            contentStream.showText("Thank you for choosing our theater. Enjoy the show!");
             contentStream.endText();
-            contentStream.close();
 
+            contentStream.close();
             document.save(outputStream);
+
             reservation.setInvoiceGenerated(true);
             return outputStream.toByteArray();
 
@@ -70,4 +88,5 @@ public class PdfService {
             return new byte[0];
         }
     }
+
 }

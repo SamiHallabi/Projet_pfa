@@ -26,10 +26,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Test success");
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
@@ -115,4 +111,22 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/{id}/promote")
+    public ResponseEntity<?> promoteUserToAdmin(@PathVariable Long id) {
+        Optional<User> existingUser = userService.getUserById(id);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            user.setRole(User.Role.ADMIN); // assuming Role is an enum
+            User updatedUser = userService.updateUser(user);
+            return ResponseEntity.ok(updatedUser);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+
+
+
+
 }
